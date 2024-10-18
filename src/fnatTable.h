@@ -20,11 +20,11 @@ class FNatTable {
   /// @brief return the client address for the given port
   /// @param port
   /// @return
-  Result<FAddrSPtr> getNat(uint16_t port);
+  Result<FAddrSPtr> getNat(uint16_t port) const;
   /// @brief return the nat port for the given client address
   /// @param addr
   /// @return
-  Result<uint16_t> getNat(FAddrSPtr &addr);
+  Result<uint16_t> getNat(const FAddrSPtr &addr) const;
 
  protected:
   uint32_t timeoutMS;

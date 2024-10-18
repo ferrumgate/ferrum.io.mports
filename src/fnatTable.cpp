@@ -40,7 +40,7 @@ Result<uint16_t> FNatTable::addNat(FAddrSPtr &addr) {
   return Result<uint16_t>::Ok(port);
 }
 
-Result<FAddrSPtr> FNatTable::getNat(uint16_t port) {
+Result<FAddrSPtr> FNatTable::getNat(uint16_t port) const {
   auto result = revNatCache.get(port);
   if (result.isError()) {
     return Result<FAddrSPtr>::Error(std::move(result.message));
@@ -48,7 +48,7 @@ Result<FAddrSPtr> FNatTable::getNat(uint16_t port) {
   return Result<FAddrSPtr>::Ok(result.data);
 }
 
-Result<uint16_t> FNatTable::getNat(FAddrSPtr &addr) {
+Result<uint16_t> FNatTable::getNat(const FAddrSPtr &addr) const {
   auto result = natCache.get(addr);
   if (result.isError()) {
     return Result<uint16_t>::Error(std::move(result.message));

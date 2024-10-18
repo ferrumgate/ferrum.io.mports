@@ -1,9 +1,8 @@
 #include <gtest/gtest.h>
 
+#include "fnatTable.h"
+using namespace Ferrum;
 // Demonstrate some basic assertions.
 TEST(TestFNatTable, addNat_getNat) {
-  // Expect two strings not to be equal.
-  EXPECT_STRNE("hello", "world");
-  // Expect equality.
-  EXPECT_EQ(7 * 6, 42);
+  FNatTable table{10};
 }

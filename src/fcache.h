@@ -30,7 +30,7 @@ class FCachePage {
     return Result<bool>::Ok();
   }
 
-  Result<bool> remove(TKey &key) {
+  Result<bool> remove(const TKey &key) {
     auto it = _cache.find(key);
     if (it != _cache.end()) {
       _cache.erase(it);
@@ -39,7 +39,7 @@ class FCachePage {
     return Result<bool>::Error("Key not found");
   }
 
-  Result<bool> isExists(TKey &key) {
+  Result<bool> isExists(const TKey &key) {
     auto it = _cache.find(key);
     if (it != _cache.end()) {
       return Result<bool>::Ok();
@@ -47,7 +47,7 @@ class FCachePage {
     return Result<bool>::Error("Key not found");
   }
 
-  Result<TValue> get(TKey &key) {
+  Result<TValue> get(const TKey &key) {
     auto it = _cache.find(key);
     if (it != _cache.end()) {
       auto k = it->second;
@@ -120,12 +120,12 @@ class FCache {
     return Result<bool>::Ok();
   }
 
-  virtual Result<bool> isExists(const TKey &key) {
+  virtual Result<bool> isExists(const TKey &key) const {
     auto result = _nowPage->isExists(key);
     return result;
   }
 
-  virtual Result<TValue> get(TKey &key) {
+  virtual Result<TValue> get(const TKey &key) const {
     return _nowPage->get(key);
   }
 
