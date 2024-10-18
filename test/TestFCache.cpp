@@ -22,10 +22,11 @@ TEST(TestFCachePage, add_remove_get_isExists) {
 TEST(TestFCachePage, isExists) {
   // check if isExists is working correctly, adding a key and checking if it
   FCache<int, int> cache{10};
-  int search = 1;
+  const int search = 1;
   auto result = cache.isExists(search);
   EXPECT_TRUE(result.isError());
-  auto result2 = cache.add(search, 100);
+  int add = search;
+  auto result2 = cache.add(add, 100);
   EXPECT_TRUE(result2.isOk());
   auto result3 = cache.isExists(search);
   EXPECT_TRUE(result3.isOk());
@@ -36,7 +37,7 @@ TEST(TestFCachePage, get_add) {
   // exists
   FCache<int, int> cache{10};
   int search = 1;
-  auto result1 = cache.get(search, 100);
+  auto result1 = cache.get(search);
   EXPECT_TRUE(result1.isError());
   auto result2 = cache.add(search, 100);
   EXPECT_TRUE(result2.isOk());

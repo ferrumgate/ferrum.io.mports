@@ -7,8 +7,8 @@ FSocketBase::FSocketBase(size_t bufferSize)
       initialized(false),
       buffer(new uint8_t[bufferSize]),
       bufferSize(bufferSize),
-      srcAddr(0, 0),
-      dstAddr(0, 0) {
+      srcAddr(new FAddr(0, 0)),
+      dstAddr(new FAddr(0, 0)) {
   loop = uv_default_loop();
 }
 
@@ -21,7 +21,9 @@ Result<bool> FSocketBase::initSocket() {
   return Result<bool>::Error("Please override this initSocket method");
 }
 
-const ::uv_os_fd_t FSocketBase::getSocketFd() const { return socketFd; }
+const ::uv_os_fd_t FSocketBase::getSocketFd() const {
+  return socketFd;
+}
 
 void handleRead(uv_poll_t *handle, int status, int events) {
   Log::trace("poll callback status: %d events: %d", status, events);

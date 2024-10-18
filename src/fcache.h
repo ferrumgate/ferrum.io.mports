@@ -21,10 +21,12 @@ class FCachePage {
 
   virtual ~FCachePage() {}
 
-  uint64_t getExpireTime() const { return _expireTime; }
+  uint64_t getExpireTime() const {
+    return _expireTime;
+  }
 
-  Result<bool> add(const TKey &key, const TValue value) {
-    _cache[TKey{key}] = value;
+  Result<bool> add(const TKey key, const TValue value) {
+    _cache[key] = value;
     return Result<bool>::Ok();
   }
 
@@ -54,7 +56,9 @@ class FCachePage {
     return Result<TValue>::Error("Key not found");
   }
 
-  size_t getSize() { return _cache.size(); }
+  size_t getSize() {
+    return _cache.size();
+  }
 
  protected:
   uint64_t _expireTime;
@@ -73,14 +77,16 @@ class FCache {
       : _timeoutMS(timeoutMS), _nowPage(nullptr), _futurePage(nullptr) {
     init();
   }
-  virtual ~FCache() { clear(); }
-
-  static FCache &getInstance() {
-    if (!_instance) {
-      _instance = std::make_unique<FCache<TKey, TValue>>();
-    }
-    return *_instance;
+  virtual ~FCache() {
+    clear();
   }
+
+  /*   static FCache &getInstance() {
+      if (!_instance) {
+        _instance = std::make_unique<FCache<TKey, TValue>>();
+      }
+      return *_instance;
+    } */
 
   virtual void clear() {
     if (_nowPage) {
@@ -114,15 +120,16 @@ class FCache {
     return Result<bool>::Ok();
   }
 
-  virtual Result<bool> isExists(TKey &key) {
+  virtual Result<bool> isExists(const TKey &key) {
     auto result = _nowPage->isExists(key);
     return result;
   }
 
-  virtual Result<TValue> get(TKey &key, TValue value) {
+  virtual Result<TValue> get(TKey &key) {
     return _nowPage->get(key);
   }
-  virtual Result<bool> add(TKey &key, TValue value) {
+
+  virtual Result<bool> add(TKey key, TValue value) {
     _nowPage->add(key, value);
     _futurePage->add(key, value);
     return Result<bool>::Ok();
@@ -132,7 +139,7 @@ class FCache {
   uint64_t _timeoutMS;
   CacheNow _nowPage;
   CacheFuture _futurePage;
-  static std::unique_ptr<FCache<TKey, TValue>> _instance;
+  // static std::unique_ptr<FCache<TKey, TValue>> _instance;
 
  public:
   int64_t now() {
@@ -140,8 +147,12 @@ class FCache {
     return duration_cast<milliseconds>(system_clock::now().time_since_epoch())
         .count();
   }
-  CachePage *getCacheNow() { return _nowPage.get(); }
-  CachePage *getCacheFuture() { return _futurePage.get(); }
+  CachePage *getCacheNow() {
+    return _nowPage.get();
+  }
+  CachePage *getCacheFuture() {
+    return _futurePage.get();
+  }
 };
 }  // namespace Ferrum
 

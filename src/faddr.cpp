@@ -2,7 +2,12 @@
 
 namespace Ferrum {
 
+#define resetAddr()                                        \
+  auto *ptr = reinterpret_cast<uint8_t *>(&this->addr.v6); \
+  std::memset(ptr, 0, sizeof(addr))
+
 FAddr::FAddr(uint32_t ip, uint16_t port) : ipStr{} {
+  resetAddr();
   this->addr.v4.sin_family = AF_INET;
   this->addr.v4.sin_port = htons(port);
   this->addr.v4.sin_addr.s_addr = ip;
@@ -10,11 +15,13 @@ FAddr::FAddr(uint32_t ip, uint16_t port) : ipStr{} {
 }
 
 FAddr::FAddr(sockaddr_in &addr) : ipStr{} {
+  resetAddr();
   this->addr.v4 = addr;
   this->isV4Addr = true;
 }
 
 FAddr::FAddr(sockaddr_in6 &addr) : ipStr{} {
+  resetAddr();
   this->addr.v6 = addr;
   this->isV4Addr = false;
 }

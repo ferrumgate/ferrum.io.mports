@@ -11,7 +11,8 @@ class FSocketTcp : public FSocketBase {
  public:
   FSocketTcp(size_t bufferSize = 4096);
   virtual ~FSocketTcp() override;
-  Result<bool> configure(const std::string ip, const std::string ports[]);
+  Result<bool> configure(const std::string ip, const std::string ports[],
+                         std::shared_ptr<FNatTable> natTable);
   Result<bool> listen(const std::string ip) override;
   void close() override;
 
@@ -19,6 +20,8 @@ class FSocketTcp : public FSocketBase {
   Result<bool> initSocket() override;
   void onRead() override;
   FAddr fwdAddr;
+  FAddr listenAddr;
+  std::shared_ptr<FNatTable> natTable;
 };
 
 }  // namespace Ferrum

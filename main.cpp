@@ -3,14 +3,14 @@
 using namespace Ferrum;
 
 int main(int, char **) {
-
   Log::info("starting application");
 #ifdef FDEBUG
   Log::info("setting log level to TRACE");
   Log::setLevel(LogLevel::TRACE);
 #endif
   FSocketTcp socket{};
-  socket.configure("100.100.100.100", {});
+  std::shared_ptr<FNatTable> natTable{new FNatTable{300000}};
+  socket.configure("100.100.100.100", {}, natTable);
   auto result = socket.listen("192.168.105.105");
   if (result.isOk()) {
     Log::info("socket listening");

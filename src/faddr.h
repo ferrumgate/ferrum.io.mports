@@ -31,6 +31,8 @@ class FAddr {
   std::string ipStrWithPort;
 };
 
+using FAddrSPtr = FSharedPtr<FAddr>;
+
 }  // namespace Ferrum
 
 #endif  // __FADDR_H__

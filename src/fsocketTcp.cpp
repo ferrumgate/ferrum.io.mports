@@ -3,7 +3,10 @@
 namespace Ferrum {
 
 FSocketTcp::FSocketTcp(size_t bufferSize)
-    : FSocketBase(bufferSize), fwdAddr(0, 0) {}
+    : FSocketBase(bufferSize),
+      fwdAddr(0, 0),
+      listenAddr(0, 0),
+      natTable(nullptr) {}
 
 FSocketTcp::~FSocketTcp() {}
 
@@ -29,17 +32,22 @@ Result<bool> FSocketTcp::initSocket() {
 }
 
 Result<bool> FSocketTcp::listen(const std::string ip) {
+  this->listenAddr = FAddr{inet_addr(ip.c_str()), 0};
   return FSocketBase::listen(ip);
 }
 
-Result<bool> FSocketTcp::configure(const std::string ip,
-                                   const std::string ports[]) {
-  this->fwdAddr = FAddr{inet_addr(ip.c_str()), 0};
+Result<bool> FSocketTcp::configure(const std::string fwdIp,
+                                   const std::string ports[],
+                                   std::shared_ptr<FNatTable> natTable) {
+  this->fwdAddr = FAddr{inet_addr(fwdIp.c_str()), 0};
+  this->natTable = natTable;
   Log::trace("fwdAddr: %s", this->fwdAddr.toString().c_str());
   return Result<bool>::Ok();
 }
 
-void FSocketTcp::close() { FSocketBase::close(); }
+void FSocketTcp::close() {
+  FSocketBase::close();
+}
 
 void FSocketTcp::onRead() {
   Log::trace("onRead called");
@@ -48,20 +56,39 @@ void FSocketTcp::onRead() {
   // static FAddr destAddr{inet_addr("100.100.100.1000"), 8080};
   struct iphdr *ip_packet = (struct iphdr *)buffer;
   struct tcphdr *tcp_packet = (struct tcphdr *)(buffer + sizeof(struct iphdr));
-  this->srcAddr = FAddr{ip_packet->saddr, ntohs(tcp_packet->source)};
-  this->dstAddr = FAddr{ip_packet->daddr, ntohs(tcp_packet->dest)};
+  this->srcAddr =
+      FAddrSPtr{new FAddr{ip_packet->saddr, ntohs(tcp_packet->source)}};
+  this->dstAddr =
+      FAddrSPtr{new FAddr{ip_packet->daddr, ntohs(tcp_packet->dest)}};
   Log::debug("IP Packet Id: %d from %s to %s", ip_packet->id,
-             srcAddr.toStringWithPort().c_str(),
-             dstAddr.toStringWithPort().c_str());
+             srcAddr->toStringWithPort().c_str(),
+             dstAddr->toStringWithPort().c_str());
   Log::debug("TCP Packet Src Port: %d Dst Port: %d", tcp_packet->source,
              tcp_packet->dest);
   // filter if port is not in our target list, don't log
   auto &fwd = this->fwdAddr.getV4Addr();
-  // if packet is not coming from the destination, change the destination to
+  // if packet is not coming from the destination,
+  // it is coming from client, forward to destination to
   if (ip_packet->saddr != fwd.sin_addr.s_addr) {
-    Log::debug("packet is not coming from the destination");
-
+    Log::debug("packet is coming from the client");
+    uint16_t natPort = 0;
+    auto natPortResult = natTable->getNat(this->srcAddr);
+    if (natPortResult.isError()) {
+      Log::debug("failed to get nat port: %s", natPortResult.message.c_str());
+      natPortResult = natTable->addNat(this->srcAddr);
+      if (natPortResult.isError()) {
+        Log::error("failed to add nat port: %s", natPortResult.message.c_str());
+        return;
+      }
+    }
+    natPort = natPortResult.data;
+    Log::debug("Nat port: %d", natPort);
+    // change the source address to our address
+    ip_packet->saddr = listenAddr.getV4Addr().sin_addr.s_addr;
+    tcp_packet->source = htons(natPort);
+    // change the destination address to the forward address
     ip_packet->daddr = fwd.sin_addr.s_addr;
+    // recalculate checksum
     ip_packet->check = Net::ipChecksum(ip_packet);
     tcp_packet->check = Net::tcpChecksum(ip_packet, tcp_packet);
 
@@ -79,6 +106,33 @@ void FSocketTcp::onRead() {
 
   } else {
     // find the destination client and redirect the packet
+    Log::debug("packet is coming from the forward");
+    auto natPort = ntohs(tcp_packet->dest);
+    auto natResult = natTable->getNat(natPort);
+    if (natResult.isError()) {
+      Log::error("failed to get nat port: %s", natResult.message.c_str());
+      return;
+    }
+    // change the source address to our address
+    tcp_packet->source = listenAddr.getV4Addr().sin_port;
+    ip_packet->saddr = listenAddr.getV4Addr().sin_addr.s_addr;
+    // change the destination address to the client address
+    tcp_packet->dest = natResult.data->getV4Addr().sin_port;
+    ip_packet->daddr = natResult.data->getV4Addr().sin_addr.s_addr;
+    // recalculate checksum
+    ip_packet->check = Net::ipChecksum(ip_packet);
+    tcp_packet->check = Net::tcpChecksum(ip_packet, tcp_packet);
+
+    Log::debug("packet will sent to %s",
+               this->fwdAddr.toStringWithPort().c_str());
+    auto sendedSize = sendto(socketFd, buffer, this->bufferSize, 0,
+                             reinterpret_cast<const struct sockaddr *>(&fwd),
+                             sizeof(struct sockaddr_in));
+    if (sendedSize < 0) {
+      Log::error("failed to send data: %s", strerror(errno));
+      return;
+    }
+    Log::debug("packet sent to %s", this->fwdAddr.toStringWithPort().c_str());
   }
 }
 

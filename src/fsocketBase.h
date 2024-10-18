@@ -31,8 +31,8 @@ class FSocketBase {
  protected:
   uint8_t *buffer;
   size_t bufferSize;
-  FAddr srcAddr;
-  FAddr dstAddr;
+  FAddrSPtr srcAddr;
+  FAddrSPtr dstAddr;
 
  private:
   friend void handleRead(uv_poll_t *handle, int status, int events);

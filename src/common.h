@@ -29,8 +29,12 @@ struct Result {
   RCode code;
   std::string message;
   T data;
-  bool isOk() { return code == RCode::OK; }
-  bool isError() { return code == RCode::ERROR; }
+  bool isOk() {
+    return code == RCode::OK;
+  }
+  bool isError() {
+    return code == RCode::ERROR;
+  }
 
   static struct Result<T> Ok() {
     return {RCode::OK, std::string{""}, T{}};
@@ -49,6 +53,18 @@ struct Result {
   static struct Result<T>
   Error(const std::string &&message) {
     return {RCode::ERROR, message, T{}};
+  }
+};
+
+template <typename T>
+class FSharedPtr : public std::shared_ptr<T> {
+ public:
+  FSharedPtr() : std::shared_ptr<T>() {}
+  FSharedPtr(T *ptr) : std::shared_ptr<T>(ptr) {}
+  FSharedPtr(const std::shared_ptr<T> &ptr) : std::shared_ptr<T>(ptr) {}
+  FSharedPtr(const FSharedPtr<T> &ptr) : std::shared_ptr<T>(ptr) {}
+  bool operator==(const FSharedPtr<T> &other) const {
+    return *(this.get()) < *(other.get());
   }
 };
 

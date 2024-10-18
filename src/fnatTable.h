@@ -15,13 +15,24 @@ class FNatTable {
   constexpr static uint16_t MAX_NAT_PORT = 65535;
   FNatTable(uint32_t timeoutMS = 300000);
   virtual ~FNatTable();
-  Result<uint16_t> addNat(const FAddr &addr);
-  Result<const FAddr &> getNat(uint16_t port);
+  // port is always in host byte order
+  Result<uint16_t> addNat(FAddrSPtr &addr);
+  /// @brief return the client address for the given port
+  /// @param port
+  /// @return
+  Result<FAddrSPtr> getNat(uint16_t port);
+  /// @brief return the nat port for the given client address
+  /// @param addr
+  /// @return
+  Result<uint16_t> getNat(FAddrSPtr &addr);
 
  protected:
   uint32_t timeoutMS;
-  uint16_t nextNatPort() const;
-  FCache<FAddr, uint16_t> natCache;
+  uint16_t nextNatPort();
+  // client ip address to nat port
+  FCache<FAddrSPtr, uint16_t> natCache;
+  // nat port to client ip address
+  FCache<uint16_t, FAddrSPtr> revNatCache;
 };
 }  // namespace Ferrum
 #endif  // __FNAT_H__
