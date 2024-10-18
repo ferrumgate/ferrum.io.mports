@@ -60,8 +60,8 @@ TEST(TestFCachePage, add_Internal) {
   futurePtr = cache.getCacheFuture();
   EXPECT_TRUE(nowPtr != nullptr);
   EXPECT_TRUE(futurePtr != nullptr);
-  auto nowResult = nowPtr->get(search);
-  EXPECT_TRUE(nowResult.isOk());
-  auto futureResult = futurePtr->get(search);
-  EXPECT_TRUE(futureResult.isOk());
+  auto nowFResult = nowPtr->get(search);
+  EXPECT_TRUE(nowFResult.isOk());
+  auto futureFResult = futurePtr->get(search);
+  EXPECT_TRUE(futureFResult.isOk());
 }

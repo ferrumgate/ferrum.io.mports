@@ -1,5 +1,5 @@
-#ifndef __COMMON_H__
-#define __COMMON_H__
+#ifndef __FCOMMON_H__
+#define __FCOMMON_H__
 
 #include <errno.h>
 #include <fcntl.h>
@@ -25,7 +25,7 @@ enum class RCode : uint8_t {
 };
 
 template <typename T>
-struct Result {
+struct FResult {
   RCode code;
   std::string message;
   T data;
@@ -36,21 +36,21 @@ struct Result {
     return code == RCode::ERROR;
   }
 
-  static struct Result<T> Ok() {
+  static struct FResult<T> Ok() {
     return {RCode::OK, std::string{""}, T{}};
   }
 
-  static struct Result<T>
+  static struct FResult<T>
   Ok(T data) {
     return {RCode::OK, std::string(""), data};
   }
 
-  static struct Result<T>
+  static struct FResult<T>
   Ok(T &&data) {
     return {RCode::OK, std::string(""), data};
   }
 
-  static struct Result<T>
+  static struct FResult<T>
   Error(const std::string &&message) {
     return {RCode::ERROR, message, T{}};
   }

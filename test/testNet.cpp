@@ -1,16 +1,16 @@
-#include "net.h"
 #include <gtest/gtest.h>
+
+#include "fnet.h"
 
 using namespace Ferrum;
 
 TEST(TestNet, ipV4Checksum) {
-
   uint8_t packet_bytes[] = {0x45, 0x00, 0x00, 0x3c, 0x18, 0x61, 0x40,
                             0x00, 0x40, 0x11, 0xbe, 0x44, 0xc0, 0xa8,
                             0x58, 0xfa, 0x8e, 0xfa, 0xbb, 0x6e};
   iphdr *ip_header = reinterpret_cast<iphdr *>(packet_bytes);
   ip_header->check = 0;
-  auto result = Net::ipChecksum(ip_header);
+  auto result = FNet::ipChecksum(ip_header);
   EXPECT_EQ(result, ntohs(0xbe44));
 }
 
@@ -110,29 +110,27 @@ TEST(TestNet, ipV4Checksum) {
 // inline uint32_t finish_sum(uint32_t sum) { return ~sum & 0xffff; }
 
 TEST(TestNet, udpChecksum) {
-
   uint8_t ip_header_bytes[] = {0x45, 0x00, 0x00, 0x35, 0x00, 0x00, 0x40,
                                0x00, 0x39, 0x11, 0x0b, 0xec, 0x8e, 0xfb,
                                0x8d, 0x2e, 0xc0, 0xa8, 0x58, 0xfa};
   uint8_t udp_header_and_data_bytes[] = {
-      0x01, 0xbb, 0xa4, 0xe1, 0x00, 0x21, 0x66, 0xb1, // header
-                                                      // data
+      0x01, 0xbb, 0xa4, 0xe1, 0x00, 0x21, 0x66, 0xb1,  // header
+                                                       // data
       0x43, 0xe8, 0xc3, 0x13, 0x2f, 0x97, 0x81, 0x1e, 0xf4, 0x68, 0x3a, 0x71,
       0x50, 0x13, 0x7d, 0x1a, 0x18, 0x2f, 0xa2, 0x1b, 0x0d, 0x29, 0x15, 0x64,
       0x2c};
 
   iphdr *ip_header = reinterpret_cast<iphdr *>(ip_header_bytes);
   ip_header->check = 0;
-  auto ipHeaderChecksum = Net::ipChecksum(ip_header);
+  auto ipHeaderChecksum = FNet::ipChecksum(ip_header);
   EXPECT_EQ(ipHeaderChecksum, ntohs(0x0bec));
   udphdr *udp_header =
       reinterpret_cast<struct udphdr *>(udp_header_and_data_bytes);
-  auto result = Net::udpChecksum(ip_header, udp_header);
+  auto result = FNet::udpChecksum(ip_header, udp_header);
   EXPECT_EQ(result, ntohs(0x66b1));
 }
 
 TEST(TestNet, tcpChecksum) {
-
   uint8_t ip_header_bytes[] = {0x45, 0x00, 0x00, 0x34, 0x1a, 0x67, 0x40,
                                0x00, 0x40, 0x06, 0x0e, 0xf5, 0xc0, 0xa8,
                                0x58, 0xfa, 0xcc, 0x8d, 0x2b, 0x38};
@@ -143,6 +141,6 @@ TEST(TestNet, tcpChecksum) {
 
   iphdr *ip_header = reinterpret_cast<iphdr *>(ip_header_bytes);
   tcphdr *tcpHeader = reinterpret_cast<tcphdr *>(tcp_header_and_data_bytes);
-  auto result = Net::tcpChecksum(ip_header, tcpHeader);
+  auto result = FNet::tcpChecksum(ip_header, tcpHeader);
   EXPECT_EQ(result, ntohs(0xd5d2));
 }

@@ -1,4 +1,4 @@
-#include "log.h"
+#include "flog.h"
 namespace Ferrum {
 
 struct LogData {
@@ -8,7 +8,7 @@ struct LogData {
 
 static LogData logData{};
 
-std::string Log::format(const char *fmt, ...) {
+std::string FLog::format(const char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
   char buffer[1024];
@@ -35,44 +35,46 @@ inline std::string timeNow() {
   return str;
 }
 
-void Log::fatal(const char *fmt, ...) {
+void FLog::fatal(const char *fmt, ...) {
   if (logData.level >= LogLevel::FATAL) {
     format(fmt);
     std::cout << timeNow() << " [FATAL] " << msg << std::endl;
   }
 }
-void Log::error(const char *fmt, ...) {
+void FLog::error(const char *fmt, ...) {
   if (logData.level >= LogLevel::ERROR) {
     format(fmt);
     std::cout << timeNow() << " [ERROR] " << msg << std::endl;
   }
 }
-void Log::warn(const char *fmt, ...) {
+void FLog::warn(const char *fmt, ...) {
   if (logData.level >= LogLevel::WARN) {
     format(fmt);
     std::cout << timeNow() << " [WARN] " << msg << std::endl;
   }
 }
-void Log::info(const char *fmt, ...) {
+void FLog::info(const char *fmt, ...) {
   if (logData.level >= LogLevel::INFO) {
     format(fmt);
     std::cout << timeNow() << " [INFO] " << msg << std::endl;
   }
 }
 
-void Log::debug(const char *fmt, ...) {
+void FLog::debug(const char *fmt, ...) {
   if (logData.level >= LogLevel::DEBUG) {
     format(fmt);
     std::cout << timeNow() << " [DEBUG] " << msg << std::endl;
   }
 }
-void Log::trace(const char *fmt, ...) {
+void FLog::trace(const char *fmt, ...) {
   if (logData.level >= LogLevel::TRACE) {
     format(fmt);
     std::cout << timeNow() << " [TRACE] " << msg << std::endl;
   }
 }
 
-void Log::setLevel(LogLevel level) { logData.level = level; }
+void FLog::setLevel(LogLevel level) {
+  logData.level = level;
+}
 
 }  // namespace Ferrum

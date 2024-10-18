@@ -1,13 +1,13 @@
-#include "net.h"
+#include "fnet.h"
 
 namespace Ferrum {
 
-Net::Net() = default;
-Net::~Net() = default;
+FNet::FNet() = default;
+FNet::~FNet() = default;
 
 /* Compute checksum for count bytes starting at addr, using one's complement of
  * one's complement sum*/
-uint16_t Net::checksum(uint16_t *addr, uint32_t count) {
+uint16_t FNet::checksum(uint16_t *addr, uint32_t count) {
   uint32_t sum = 0;
   while (count > 1) {
     sum += *addr++;
@@ -26,13 +26,13 @@ uint16_t Net::checksum(uint16_t *addr, uint32_t count) {
   return static_cast<uint16_t>(sum);
 }
 
-uint16_t Net::ipChecksum(struct iphdr *iphdrp) {
+uint16_t FNet::ipChecksum(struct iphdr *iphdrp) {
   iphdrp->check = 0;
   return checksum(reinterpret_cast<uint16_t *>(iphdrp), iphdrp->ihl << 2);
 }
 
 /* set tcp checksum: given IP header and tcp segment */
-uint16_t Net::tcpChecksum(struct iphdr *pIph, struct tcphdr *tcphdrp) {
+uint16_t FNet::tcpChecksum(struct iphdr *pIph, struct tcphdr *tcphdrp) {
   uint32_t sum = 0;
   uint16_t tcpLen = ntohs(pIph->tot_len) - (pIph->ihl << 2);
   uint16_t *payload = reinterpret_cast<uint16_t *>(tcphdrp);
@@ -68,7 +68,7 @@ uint16_t Net::tcpChecksum(struct iphdr *pIph, struct tcphdr *tcphdrp) {
 }
 
 /* set udp checksum: given IP header and UDP datagram */
-uint16_t Net::udpChecksum(struct iphdr *pIph, struct udphdr *udphdrp) {
+uint16_t FNet::udpChecksum(struct iphdr *pIph, struct udphdr *udphdrp) {
   uint32_t sum = 0;
   uint16_t *payload = reinterpret_cast<uint16_t *>(udphdrp);
   uint16_t udpLen = htons(udphdrp->len);

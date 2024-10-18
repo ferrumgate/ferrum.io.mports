@@ -3,8 +3,8 @@
 
 #include <time.h>
 
-#include "common.h"
 #include "fcache.h"
+#include "fcommon.h"
 
 namespace Ferrum {
 
@@ -16,15 +16,15 @@ class FNatTable {
   FNatTable(uint32_t timeoutMS = 300000);
   virtual ~FNatTable();
   // port is always in host byte order
-  Result<uint16_t> addNat(FAddrSPtr &addr);
+  FResult<uint16_t> addNat(FAddrSPtr &addr);
   /// @brief return the client address for the given port
   /// @param port
   /// @return
-  Result<FAddrSPtr> getNat(uint16_t port) const;
+  FResult<FAddrSPtr> getNat(uint16_t port) const;
   /// @brief return the nat port for the given client address
   /// @param addr
   /// @return
-  Result<uint16_t> getNat(const FAddrSPtr &addr) const;
+  FResult<uint16_t> getNat(const FAddrSPtr &addr) const;
 
  protected:
   uint32_t timeoutMS;

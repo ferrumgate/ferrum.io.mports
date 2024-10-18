@@ -5,8 +5,9 @@
 #include <map>
 #include <memory>
 
-#include "common.h"
 #include "faddr.h"
+#include "fcommon.h"
+#include "futil.h"
 
 namespace Ferrum {
 
@@ -25,35 +26,35 @@ class FCachePage {
     return _expireTime;
   }
 
-  Result<bool> add(const TKey key, const TValue value) {
+  FResult<bool> add(const TKey key, const TValue value) {
     _cache[key] = value;
-    return Result<bool>::Ok();
+    return FResult<bool>::Ok();
   }
 
-  Result<bool> remove(const TKey &key) {
+  FResult<bool> remove(const TKey &key) {
     auto it = _cache.find(key);
     if (it != _cache.end()) {
       _cache.erase(it);
-      return Result<bool>::Ok();
+      return FResult<bool>::Ok();
     }
-    return Result<bool>::Error("Key not found");
+    return FResult<bool>::Error("Key not found");
   }
 
-  Result<bool> isExists(const TKey &key) {
+  FResult<bool> isExists(const TKey &key) {
     auto it = _cache.find(key);
     if (it != _cache.end()) {
-      return Result<bool>::Ok();
+      return FResult<bool>::Ok();
     }
-    return Result<bool>::Error("Key not found");
+    return FResult<bool>::Error("Key not found");
   }
 
-  Result<TValue> get(const TKey &key) {
+  FResult<TValue> get(const TKey &key) {
     auto it = _cache.find(key);
     if (it != _cache.end()) {
       auto k = it->second;
-      return Result<TValue>::Ok(it->second);
+      return FResult<TValue>::Ok(it->second);
     }
-    return Result<TValue>::Error("Key not found");
+    return FResult<TValue>::Error("Key not found");
   }
 
   size_t getSize() {
@@ -97,7 +98,7 @@ class FCache {
     }
   }
   virtual void init() {
-    auto nowMS = this->now();
+    auto nowMS = FUtil::DateTime::now();
     auto nowStart = (nowMS / _timeoutMS) * _timeoutMS;
     if (!_nowPage) {
       _nowPage =
@@ -108,8 +109,8 @@ class FCache {
           nowStart + _timeoutMS + _timeoutMS);
     }
   }
-  virtual Result<bool> clearTimedOut() {
-    auto nowMS = this->now();
+  virtual FResult<bool> clearTimedOut() {
+    auto nowMS = FUtil::DateTime::now();
     auto nowStart = (nowMS / _timeoutMS) * _timeoutMS;
     if (_nowPage && _nowPage->getExpireTime() < nowStart) {
       _nowPage.reset();
@@ -117,22 +118,22 @@ class FCache {
       _futurePage = nullptr;
     }
     init();
-    return Result<bool>::Ok();
+    return FResult<bool>::Ok();
   }
 
-  virtual Result<bool> isExists(const TKey &key) const {
+  virtual FResult<bool> isExists(const TKey &key) const {
     auto result = _nowPage->isExists(key);
     return result;
   }
 
-  virtual Result<TValue> get(const TKey &key) const {
+  virtual FResult<TValue> get(const TKey &key) const {
     return _nowPage->get(key);
   }
 
-  virtual Result<bool> add(TKey key, TValue value) {
+  virtual FResult<bool> add(TKey key, TValue value) {
     _nowPage->add(key, value);
     _futurePage->add(key, value);
-    return Result<bool>::Ok();
+    return FResult<bool>::Ok();
   }
 
  protected:
@@ -142,11 +143,6 @@ class FCache {
   // static std::unique_ptr<FCache<TKey, TValue>> _instance;
 
  public:
-  int64_t now() {
-    using namespace std::chrono;
-    return duration_cast<milliseconds>(system_clock::now().time_since_epoch())
-        .count();
-  }
   CachePage *getCacheNow() {
     return _nowPage.get();
   }

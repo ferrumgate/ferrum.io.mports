@@ -3,10 +3,10 @@
 
 #include <unordered_map>
 
-#include "common.h"
 #include "faddr.h"
-#include "log.h"
-#include "net.h"
+#include "fcommon.h"
+#include "flog.h"
+#include "fnet.h"
 
 namespace Ferrum {
 
@@ -14,11 +14,11 @@ class FSocketBase {
  public:
   FSocketBase(size_t bufferSize = std::numeric_limits<size_t>::max());
   virtual ~FSocketBase();
-  virtual Result<bool> listen(const std::string ip);
+  virtual FResult<bool> listen(const std::string ip);
   virtual void close();
 
  protected:
-  virtual Result<bool> initSocket();
+  virtual FResult<bool> initSocket();
   virtual const ::uv_os_fd_t getSocketFd() const;
   virtual void onRead() = 0;
 

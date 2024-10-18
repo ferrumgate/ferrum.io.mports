@@ -11,13 +11,13 @@ class FSocketTcp : public FSocketBase {
  public:
   FSocketTcp(size_t bufferSize = 4096);
   virtual ~FSocketTcp() override;
-  Result<bool> configure(const std::string ip, const std::string ports[],
-                         std::shared_ptr<FNatTable> natTable);
-  Result<bool> listen(const std::string ip) override;
+  FResult<bool> configure(const std::string ip, const std::string ports[],
+                          std::shared_ptr<FNatTable> natTable);
+  FResult<bool> listen(const std::string ip) override;
   void close() override;
 
  protected:
-  Result<bool> initSocket() override;
+  FResult<bool> initSocket() override;
   void onRead() override;
   FAddr fwdAddr;
   FAddr listenAddr;

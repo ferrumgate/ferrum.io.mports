@@ -1,7 +1,7 @@
 #ifndef __FADDR_H__
 #define __FADDR_H__
 
-#include "common.h"
+#include "fcommon.h"
 
 namespace Ferrum {
 class FAddr {

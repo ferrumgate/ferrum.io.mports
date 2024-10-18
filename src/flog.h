@@ -1,5 +1,5 @@
-#ifndef __LOG_H__
-#define __LOG_H__
+#ifndef __FLOG_H__
+#define __FLOG_H__
 
 #include <cstdarg>
 #include <ctime>
@@ -14,7 +14,7 @@ enum class LogLevel { FATAL, ERROR, WARN, INFO, DEBUG, TRACE };
 
 /// @brief Log class
 /// @details This class is used to log messages to the console.
-class Log {
+class FLog {
  public:
   static std::string format(const char *fmt, ...);
   static void setLevel(LogLevel level);

@@ -1,13 +1,13 @@
-#ifndef __NET_H__
-#define __NET_H__
+#ifndef __FNET_H__
+#define __FNET_H__
 
-#include "common.h"
+#include "fcommon.h"
 
 namespace Ferrum {
-class Net {
+class FNet {
  private:
-  Net();
-  ~Net();
+  FNet();
+  ~FNet();
 
  public:
   static uint16_t checksum(uint16_t *addr, uint32_t byteCount);
