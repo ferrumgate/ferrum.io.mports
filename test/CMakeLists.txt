@@ -25,6 +25,7 @@ target_link_libraries(
     hello_test
     GTest::gtest_main
     ferrum
+    uv
 )
 
 include(GoogleTest)

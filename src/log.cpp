@@ -17,12 +17,12 @@ std::string Log::format(const char *fmt, ...) {
   return std::string(buffer);
 }
 
-#define format(fmt)                                                            \
-  va_list args;                                                                \
-  va_start(args, fmt);                                                         \
-  char buffer[1024];                                                           \
-  vsnprintf(buffer, sizeof(buffer), fmt, args);                                \
-  va_end(args);                                                                \
+#define format(fmt)                             \
+  va_list args;                                 \
+  va_start(args, fmt);                          \
+  char buffer[1024];                            \
+  vsnprintf(buffer, sizeof(buffer), fmt, args); \
+  va_end(args);                                 \
   auto msg = std::string(buffer);
 
 inline std::string timeNow() {
@@ -75,4 +75,4 @@ void Log::trace(const char *fmt, ...) {
 
 void Log::setLevel(LogLevel level) { logData.level = level; }
 
-} // namespace Ferrum
+}  // namespace Ferrum

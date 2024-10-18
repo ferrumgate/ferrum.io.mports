@@ -1,18 +1,26 @@
 #include "fsocketBase.h"
 
 namespace Ferrum {
+
 FSocketBase::FSocketBase(size_t bufferSize)
-    : loop(nullptr), initialized(false), buffer(new uint8_t[bufferSize]),
-      bufferSize(bufferSize) {
+    : loop(nullptr),
+      initialized(false),
+      buffer(new uint8_t[bufferSize]),
+      bufferSize(bufferSize),
+      srcAddr(0, 0),
+      dstAddr(0, 0) {
   loop = uv_default_loop();
 }
+
 FSocketBase::~FSocketBase() {
   close();
   delete[] buffer;
 }
+
 Result<bool> FSocketBase::initSocket() {
   return Result<bool>::Error("Please override this initSocket method");
 }
+
 const ::uv_os_fd_t FSocketBase::getSocketFd() const { return socketFd; }
 
 void handleRead(uv_poll_t *handle, int status, int events) {
@@ -86,4 +94,4 @@ void FSocketBase::close() {
   initialized = false;
 }
 
-} // namespace Ferrum
+}  // namespace Ferrum

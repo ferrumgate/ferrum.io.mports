@@ -5,16 +5,17 @@
 
 namespace Ferrum {
 class Net {
-private:
+ private:
   Net();
   ~Net();
 
-public:
+ public:
+  static uint16_t checksum(uint16_t *addr, uint32_t byteCount);
   static uint16_t ipChecksum(struct iphdr *iphdr);
-  static uint16_t tcpChecksum(struct iphdr *iphdr, uint16_t *tcpHeader);
-  static uint16_t udpChecksum(struct iphdr *iphdr, uint16_t *udpHeader);
+  static uint16_t tcpChecksum(struct iphdr *iphdr, struct tcphdr *tcphdrp);
+  static uint16_t udpChecksum(struct iphdr *iphdr, struct udphdr *udphdrp);
 };
 
-} // namespace Ferrum
+}  // namespace Ferrum
 
-#endif // __NET_H__
+#endif  // __NET_H__

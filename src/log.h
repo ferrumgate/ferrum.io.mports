@@ -15,7 +15,7 @@ enum class LogLevel { FATAL, ERROR, WARN, INFO, DEBUG, TRACE };
 /// @brief Log class
 /// @details This class is used to log messages to the console.
 class Log {
-public:
+ public:
   static std::string format(const char *fmt, ...);
   static void setLevel(LogLevel level);
   static void fatal(const char *fmt, ...);
@@ -26,6 +26,6 @@ public:
   static void trace(const char *fmt, ...);
 };
 
-} // namespace Ferrum
+}  // namespace Ferrum
 
-#endif // __LOG_H__
+#endif  // __LOG_H__
