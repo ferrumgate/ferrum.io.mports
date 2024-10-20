@@ -2,11 +2,12 @@
 
 namespace Ferrum {
 
-FSocketBase::FSocketBase(size_t bufferSize)
+FSocketBase::FSocketBase(size_t bufferCapacity)
     : loop(nullptr),
       initialized(false),
-      buffer(new uint8_t[bufferSize]),
-      bufferSize(bufferSize),
+      buffer(new uint8_t[bufferCapacity]),
+      bufferCapacity(bufferCapacity),
+      bufferSize(0),
       srcAddr(new FAddr(0, 0)),
       dstAddr(new FAddr(0, 0)) {
   loop = uv_default_loop();
@@ -34,7 +35,7 @@ void handleRead(uv_poll_t *handle, int status, int events) {
     FSocketBase *socket = reinterpret_cast<FSocketBase *>(handle->data);
     auto socketFd = socket->getSocketFd();
     uint8_t *buffer = socket->buffer;
-    auto readedLen = recv(socketFd, buffer, socket->bufferSize, 0);
+    auto readedLen = recv(socketFd, buffer, socket->bufferCapacity, 0);
     if (readedLen < 0) {
       FLog::error("failed to read data: %s", strerror(errno));
       return;

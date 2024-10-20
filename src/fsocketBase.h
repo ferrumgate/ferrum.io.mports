@@ -12,7 +12,7 @@ namespace Ferrum {
 
 class FSocketBase {
  public:
-  FSocketBase(size_t bufferSize = std::numeric_limits<size_t>::max());
+  FSocketBase(size_t bufferCapacity = std::numeric_limits<uint16_t>::max());
   virtual ~FSocketBase();
   virtual FResult<bool> listen(const std::string ip);
   virtual void close();
@@ -31,6 +31,7 @@ class FSocketBase {
  protected:
   uint8_t *buffer;
   size_t bufferSize;
+  size_t bufferCapacity;
   FAddrSPtr srcAddr;
   FAddrSPtr dstAddr;
 

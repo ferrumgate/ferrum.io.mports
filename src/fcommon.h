@@ -64,7 +64,7 @@ class FSharedPtr : public std::shared_ptr<T> {
   FSharedPtr(const std::shared_ptr<T> &ptr) : std::shared_ptr<T>(ptr) {}
   FSharedPtr(const FSharedPtr<T> &ptr) : std::shared_ptr<T>(ptr) {}
   bool operator==(const FSharedPtr<T> &other) const {
-    return *(this.get()) < *(other.get());
+    return *(this->get()) == *(other.get());
   }
 };
 

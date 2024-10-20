@@ -9,7 +9,7 @@ namespace Ferrum {
 FAddr::FAddr(uint32_t ip, uint16_t port) : ipStr{} {
   resetAddr();
   this->addr.v4.sin_family = AF_INET;
-  this->addr.v4.sin_port = htons(port);
+  this->addr.v4.sin_port = port;
   this->addr.v4.sin_addr.s_addr = ip;
   this->isV4Addr = true;
 }
@@ -36,9 +36,13 @@ bool operator<(const FAddr &thiss, const FAddr &other) {
   return memcmp(&thiss.addr, &other.addr, sizeof(thiss.addr)) < 0;
 }
 
-bool FAddr::isV4() const { return this->isV4Addr; }
+bool FAddr::isV4() const {
+  return this->isV4Addr;
+}
 
-bool FAddr::isV6() const { return !this->isV4Addr; }
+bool FAddr::isV6() const {
+  return !this->isV4Addr;
+}
 
 const std::string &FAddr::toString() {
   if (this->ipStr.size() > 0) {
@@ -89,8 +93,12 @@ bool FAddr::operator==(const FAddr &other) const {
                 sizeof(struct in6_addr)) == 0;
 }
 
-sockaddr_in &FAddr::getV4Addr() { return this->addr.v4; }
+sockaddr_in &FAddr::getV4Addr() {
+  return this->addr.v4;
+}
 
-sockaddr_in6 &FAddr::getV6Addr() { return this->addr.v6; }
+sockaddr_in6 &FAddr::getV6Addr() {
+  return this->addr.v6;
+}
 
 }  // namespace Ferrum

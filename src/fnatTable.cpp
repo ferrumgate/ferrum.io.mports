@@ -16,7 +16,7 @@ uint16_t FNatTable::nextNatPort() {
     uint16_t port =
         rand() % (FNatTable::MAX_NAT_PORT - FNatTable::MIN_NAT_PORT) +
         FNatTable::MIN_NAT_PORT;
-    if (revNatCache.isExists(port).isOk()) {
+    if (!revNatCache.isExists(port).isOk()) {
       return port;
     }
   }
