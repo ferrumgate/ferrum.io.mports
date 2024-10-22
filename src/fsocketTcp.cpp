@@ -32,7 +32,7 @@ FResult<bool> FSocketTcp::initSocket() {
 }
 
 FResult<bool> FSocketTcp::listen(const std::string ip) {
-  this->listenAddr = FAddr{inet_addr(ip.c_str()), 0};
+  this->listenAddr = FAddr{inet_addr(ip.c_str()), htons(8080)};
   return FSocketBase::listen(ip);
 }
 
@@ -50,28 +50,33 @@ void FSocketTcp::close() {
 }
 
 void FSocketTcp::onRead() {
-  FLog::debug("***************************************");
-  FLog::trace("onRead called");
-  FLog::trace("socket readed buf size: %d", this->bufferSize);
-
   // static FAddr destAddr{inet_addr("100.100.100.1000"), 8080};
   struct iphdr *ip_packet = (struct iphdr *)buffer;
   struct tcphdr *tcp_packet = (struct tcphdr *)(buffer + sizeof(struct iphdr));
   this->srcAddr = FAddrSPtr{new FAddr{ip_packet->saddr, tcp_packet->source}};
   this->dstAddr = FAddrSPtr{new FAddr{ip_packet->daddr, tcp_packet->dest}};
+  // filter if port is not in our target list, don't log
+  auto &fwd = this->fwdAddr.getV4Addr();
+  auto isPacketComingToListening =
+      ip_packet->daddr == listenAddr.getV4Addr().sin_addr.s_addr &&
+      tcp_packet->dest == listenAddr.getV4Addr().sin_port;
+
+  auto isPacketComingFromForward = ip_packet->saddr == fwd.sin_addr.s_addr &&
+                                   tcp_packet->source == fwd.sin_port;
+
+  if (!(isPacketComingToListening || isPacketComingFromForward)) {
+    // FLog::debug("packet is not coming from the forward or client %d %d",
+    //            isPacketComingToListening, isPacketComingFromForward);
+    return;
+  }
+  FLog::debug("***************************************");
+  FLog::trace("onRead called");
+  FLog::trace("socket readed buf size: %d", this->bufferSize);
   FLog::debug("ip packet id: %d from %s to %s", ip_packet->id,
               srcAddr->toStringWithPort().c_str(),
               dstAddr->toStringWithPort().c_str());
   FLog::debug("tcp Packet Src Port: %d Dst Port: %d", ntohs(tcp_packet->source),
               ntohs(tcp_packet->dest));
-  // filter if port is not in our target list, don't log
-
-  auto &fwd = this->fwdAddr.getV4Addr();
-  if (ip_packet->saddr == listenAddr.getV4Addr().sin_addr.s_addr &&
-      tcp_packet->source == listenAddr.getV4Addr().sin_port) {
-    FLog::debug("packet is not coming from the forward or client");
-    return;
-  }
   // if packet is not coming from the destination,
   // it is coming from client, forward to destination to
   if (ip_packet->saddr != fwd.sin_addr.s_addr) {

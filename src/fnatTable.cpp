@@ -28,6 +28,7 @@ FResult<uint16_t> FNatTable::addNat(FAddrSPtr &addr) {
   if (port == 0) {
     return FResult<uint16_t>::Error("Failed to find a free port");
   }
+  port = htons(port);
   FResult<bool> result = natCache.add(addr, port);
   if (result.isError()) {
     return FResult<uint16_t>::Error(std::move(result.message));

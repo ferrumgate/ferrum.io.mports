@@ -49,11 +49,11 @@ const std::string &FAddr::toString() {
     return this->ipStr;
   }
   if (this->isV4Addr) {
-    char ip[INET_ADDRSTRLEN];
+    char ip[INET_ADDRSTRLEN] = {0};
     inet_ntop(AF_INET, &this->addr.v4.sin_addr, ip, INET_ADDRSTRLEN);
     ipStr = ip;
   } else {
-    char ip[INET6_ADDRSTRLEN];
+    char ip[INET6_ADDRSTRLEN] = {0};
     inet_ntop(AF_INET6, &this->addr.v6.sin6_addr, ip, INET6_ADDRSTRLEN);
     ipStr = ip;
   }
@@ -65,13 +65,13 @@ const std::string &FAddr::toStringWithPort() {
     return this->ipStrWithPort;
   }
   if (this->isV4Addr) {
-    char ip[INET_ADDRSTRLEN];
+    char ip[INET_ADDRSTRLEN] = {0};
     inet_ntop(AF_INET, &this->addr.v4.sin_addr, ip, INET_ADDRSTRLEN);
     ipStr = ip;
     ipStr += ":";
     ipStr += std::to_string(ntohs(this->addr.v4.sin_port));
   } else {
-    char ip[INET6_ADDRSTRLEN];
+    char ip[INET6_ADDRSTRLEN] = {0};
     inet_ntop(AF_INET6, &this->addr.v6.sin6_addr, ip, INET6_ADDRSTRLEN);
     ipStr = ip;
     ipStr += ":[";
